@@ -18,3 +18,17 @@ To play the game locally, follow these steps:
 
 Enjoy your adventure!
 
+## How to Play the Game
+
+| Key | Action                       |
+|-----|------------------------------|
+| s   | Start the game               |
+| x   | Dig to the left              |
+| c   | Dig to the right             |
+| i   | Move up                      |
+| m   | Move down                    |
+| j   | Move left                    |
+| l   | Move right                   |
+| r   | Restart the stage            |
+
+
