@@ -3,6 +3,8 @@
 Treasure and Monster is an action puzzle game inspired by *Lode Runner*. 
 Have fun playing!
 
+This project is shared as a learning resource, and there are no plans for future updates.
+
 ## How to Run the Game
 
 To play the game locally, follow these steps:
