@@ -155,6 +155,7 @@ export class Enemy extends Chara {
     action_in_hole() {
         let ret = this.count_move(0, 0);
         if (!ret) {
+            // 動作完了したら穴を上る
             this.change_state(State.UP_HOLE);
         }
         if (this.check_dead()) {
@@ -166,6 +167,7 @@ export class Enemy extends Chara {
     action_up_hole() {
         let ret = this.count_move(0, -1);
         if (!ret) {
+            // 動作完了したらCharaの位置を確認して移動する
             if (this.chara.x < this.x) {
                 this.change_state(State.MOVE_LEFT);
             } else {

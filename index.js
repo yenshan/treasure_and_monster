@@ -1,3 +1,4 @@
+import { UserInput } from "./UserInput.js"
 import { Chara } from "./Chara.js"
 import { Enemy } from "./Enemy.js"
 import { World } from "./World.js"
@@ -16,16 +17,16 @@ context.imageSmoothingEnabled = false;
 const SPRITE_SHEET_WIDTH = 16;
 const BLOCK_SIZE = 8;
 
-const GAME_UPDATE_INTERVAL_MSEC = 20;
+const GAME_UPDATE_INTERVAL_MSEC = 30;
 
 const State = {
-    INIT_TITLE: 0,
-    TITLE: 1,
-    INIT_GAME: 2,
-    GAME: 3,
-    GAME_CLEAR_INIT: 4,
-    GAME_CLEAR: 5,
-    GAME_OVER: 6,
+    INIT_TITLE: 'INIT_TITLE',
+    TITLE: 'TITLE',
+    INIT_GAME: 'INIT_GAME',
+    GAME: 'GAME',
+    GAME_CLEAR_INIT: 'GAME_CLEAR_INIT',
+    GAME_CLEAR: 'GAME_CLEAR',
+    GAME_OVER: 'GAME_OVER',
 }
 
 const title = [
@@ -90,7 +91,7 @@ const game_clear = [
 
 let state = State.INIT_TITLE;
 
-// load the sprite sheet
+// スプライトシートのロード
 const spriteSheet = new Image();
 spriteSheet.src = "./spritesheet.png";
 const titleImage = new Image();
@@ -98,27 +99,8 @@ titleImage.src = "./title.png";
 
 let world;
 
+export let input = new UserInput(document);
 
-document.addEventListener('keydown', keyDownHandler, false);
-
-function keyDownHandler(event) {
-    if (state == State.TITLE) {
-        if (event.key == 's') state = State.INIT_GAME;
-        return;
-    }
-    switch(event.key) {
-    case 'j': world.player.move_left(); break;
-    case 'l': world.player.move_right(); break;
-    case 'i': world.player.move_up(); break;
-    case 'm': world.player.move_down();break;
-    case 'x': world.player.dig_left(); break;
-    case 'c': world.player.dig_right(); break;
-    case 'r': state = State.INIT_GAME; break;
-    }
-    if (state == State.GAME_CLEAR) {
-        state = State.INIT_TITLE;
-    }
-}
 
 export function drawSprite(sprite_no, x, y, flip=false) {
     let sx = (sprite_no % SPRITE_SHEET_WIDTH) *8;
@@ -155,7 +137,7 @@ function clear_background() {
 }
 
 function update_game_screen() {
-    // display the background buffer in a larger size
+    // 表示用にcanvas_bgを拡大する
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(canvas_bg, 0, 0, canvas_bg.width, canvas_bg.height, 0, 0, canvas.width, canvas.height);
 }
@@ -192,31 +174,43 @@ function update() {
     switch(state) {
     case State.INIT_TITLE:
         world = new World(SCREEN_W, SCREEN_H, title, false);
+        input.setInputFilter(['start'])
         state = State.TITLE;
         break;
     case State.TITLE:
         update_game();
         draw_title();
         draw_text_center("Press 'S' Key to Start", canvas.height/5*4, true);
+        if (input.start) state = State.INIT_GAME;
         break;
     case State.INIT_GAME:
         context.clearRect(0, 0, canvas.width, canvas.height);
         world = new World(SCREEN_W, SCREEN_H, map);
-        state = State.GAME;
+        update_game();
+        input.setInputFilter(null);
+        if (wait_seconds(1)) {
+            state = State.GAME;
+        }
         break;
     case State.GAME:
         update_game();
+        if (input.reset) state = State.INIT_GAME;
         break;
     case State.GAME_CLEAR_INIT:
         if (wait_seconds(1)) {
             world = new World(SCREEN_W, SCREEN_H, game_clear, false);
             state = State.GAME_CLEAR;
+            input.setInputFilter(['start'])
         }
         break;
     case State.GAME_CLEAR:
         clear_background();
         update_game();
         draw_text_center("Game Clear !!", canvas.height/5*3);
+        if (input.start) {
+            state = State.INIT_TITLE;
+            input.clearInputs();
+        }
         break;
     case State.GAME_OVER:
         update_game();

@@ -1,4 +1,4 @@
-import {drawSprite} from "./index.js"
+import {drawSprite, input} from "./index.js"
 
 const State = {
     STOP: 'STOP',
@@ -88,9 +88,25 @@ export class Chara {
             if (this.can_fall()) {
                 this.change_state(State.FALL);
             } else {
-                let check_func = `check_${this.request_move.toLowerCase()}`;
-                this[check_func]();
-                this.request_move = State.STOP;
+                this.check_stop();
+                if (input.left) {
+                    this.check_move_left();
+                }
+                if (input.right) {
+                    this.check_move_right();
+                }
+                if (input.up) {
+                    this.check_move_up();
+                }
+                if (input.down) {
+                    this.check_move_down();
+                }
+                if (input.A) {
+                    this.check_dig_right();
+                }
+                if (input.Y) {
+                    this.check_dig_left();
+                }
             }
         }
 
@@ -291,15 +307,11 @@ export class Chara {
     count_move(dx, dy) {
         this.move_count--;
         if (this.move_count < 0) {
-            return false;
+            return false; // 動作が終わったらfalseを返す
         }
         this.x += dx;
         this.y += dy;
         return true;
-    }
-
-    stop_move() {
-        this.request_move = Move.STOP;
     }
 
     can_fall() {
@@ -316,31 +328,6 @@ export class Chara {
 
     is_over_bar() {
         return this.world.isOnBar(this.x+this.w/2, this.y+this.h/2);
-    }
-
-
-    move_right() {
-        this.request_move = State.MOVE_RIGHT;
-    }
-
-    move_left() {
-        this.request_move = State.MOVE_LEFT;
-    }
-
-    move_up() {
-        this.request_move = State.MOVE_UP;
-    }
-
-    move_down() {
-        this.request_move = State.MOVE_DOWN;
-    }
-
-    dig_right() {
-        this.request_move = State.DIG_RIGHT;
-    }
-
-    dig_left() {
-        this.request_move = State.DIG_LEFT;
     }
 
     isDead() {
